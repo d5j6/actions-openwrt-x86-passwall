@@ -1,0 +1,78 @@
+diff --git a/include/target.mk b/include/target.mk
+index 7526224972..2518362d3f 100644
+--- a/include/target.mk
++++ b/include/target.mk
+@@ -13,12 +13,15 @@ DEVICE_TYPE?=router
+ DEFAULT_PACKAGES:=\
+ 	base-files \
+ 	ca-bundle \
++  curl \
++  default-settings \
+ 	dropbear \
+ 	fstools \
+ 	libc \
+ 	libgcc \
+-	libustream-wolfssl \
++	libustream-openssl \
+ 	logd \
++  luci \
+ 	mtd \
+ 	netifd \
+ 	opkg \
+@@ -43,15 +46,21 @@ DEFAULT_PACKAGES.nas:=\
+ 	mdadm
+ # For router targets
+ DEFAULT_PACKAGES.router:=\
+-	dnsmasq \
++	dnsmasq-full \
+ 	firewall \
+ 	ip6tables \
++  ip-full \
+ 	iptables \
++  iptables-mod-ipsec \
++  iptables-mod-tproxy \
++  kmod-ipt-nat6 \
+ 	kmod-ipt-offload \
++  kmod-tun \
+ 	odhcp6c \
+ 	odhcpd-ipv6only \
+ 	ppp \
+-	ppp-mod-pppoe
++	ppp-mod-pppoe \
++  resolveip
+ 
+ ifneq ($(DUMP),)
+   all: dumpinfo
+diff --git a/package/base-files/files/etc/rc.local b/package/base-files/files/etc/rc.local
+index 56394773c3..1afeecc0db 100644
+--- a/package/base-files/files/etc/rc.local
++++ b/package/base-files/files/etc/rc.local
+@@ -1,4 +1,8 @@
+ # Put your custom commands here that should be executed once
+ # the system init finished. By default this file does nothing.
+ 
++# performance governor
++echo performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
++echo performance > /sys/devices/system/cpu/cpufreq/policy1/scaling_governor
++
+ exit 0
+diff --git a/tools/Makefile b/tools/Makefile
+index 1d7da0756d..dd1b7fa202 100644
+--- a/tools/Makefile
++++ b/tools/Makefile
+@@ -25,7 +25,7 @@ tools-y += autoconf autoconf-archive automake bc bison cmake cpio dosfstools
+ tools-y += e2fsprogs fakeroot findutils firmware-utils flex gengetopt
+ tools-y += libressl libtool lzma m4 make-ext4fs missing-macros mkimage
+ tools-y += mklibs mm-macros mtd-utils mtools padjffs2 patch-image
+-tools-y += patchelf pkgconf quilt squashfskit4 sstrip xxd zip zlib zstd
++tools-y += patchelf pkgconf quilt squashfskit4 sstrip ucl upx xxd zip zlib zstd
+ tools-$(BUILD_B43_TOOLS) += b43-tools
+ tools-$(BUILD_ISL) += isl
+ tools-$(BUILD_TOOLCHAIN) += expat gmp libelf mpc mpfr
+@@ -71,6 +71,7 @@ $(curdir)/quilt/compile := $(curdir)/autoconf/compile $(curdir)/findutils/compil
+ $(curdir)/sdcc/compile := $(curdir)/bison/compile
+ $(curdir)/squashfs/compile := $(curdir)/lzma-old/compile
+ $(curdir)/squashfskit4/compile := $(curdir)/xz/compile $(curdir)/zlib/compile
++$(curdir)/upx/compile := $(curdir)/ucl/compile
+ $(curdir)/zlib/compile := $(curdir)/cmake/compile
+ $(curdir)/zstd/compile := $(curdir)/cmake/compile
