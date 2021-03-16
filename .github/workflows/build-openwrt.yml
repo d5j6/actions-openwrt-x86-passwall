@@ -73,6 +73,7 @@ jobs:
         patch -p1 < main.patch
         patch -p1 < add-upx.patch
 
+        ./scripts/feeds update -a
         cd feeds/packages
         patch -p1 -i ../../packages.patch
 
