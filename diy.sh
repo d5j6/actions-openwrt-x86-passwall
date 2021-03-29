@@ -2,10 +2,10 @@
 
 cp -R ../default-settings package/default-settings
 
-# git clone https://github.com/kuoruan/openwrt-upx.git package/openwrt-upx
-git clone https://github.com/xiaorouji/openwrt-passwall.git package/openwrt-passwall
-git clone https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
-git clone https://github.com/yichya/luci-app-xray.git package/luci-app-xray
+git clone -b master --depth 1 https://github.com/kuoruan/openwrt-upx.git package/openwrt-upx
+git clone --depth 1 https://github.com/xiaorouji/openwrt-passwall.git package/openwrt-passwall
+git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+git clone --depth 1 https://github.com/yichya/luci-app-xray.git package/luci-app-xray
 
 rm -rf package/openwrt-passwall/xray-core
 

@@ -66,12 +66,12 @@ jobs:
     - name: Apply Patches
       run: |
         cp patches/main.patch openwrt
-        cp patches/add-upx.patch openwrt
+        # cp patches/add-upx.patch openwrt
         cp patches/packages.patch openwrt
 
         cd openwrt
         patch -p1 < main.patch
-        patch -p1 < add-upx.patch
+        # patch -p1 < add-upx.patch
 
         ./scripts/feeds update -a
         cd feeds/packages
