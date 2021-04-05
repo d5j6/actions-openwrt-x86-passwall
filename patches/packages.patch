@@ -64,3 +64,172 @@ index 64e7667a4..cfba85c50 100644
  $(eval $(call BuildPackage,miniupnpd))
 +$(eval $(call BuildPackage,miniupnpd-igdv1))
 \ No newline at end of file
+diff --git a/applications/luci-app-https-dns-proxy/root/etc/uci-defaults/40_luci-https-dns-proxy b/applications/luci-app-https-dns-proxy/root/etc/uci-defaults/40_luci-https-dns-proxy
+index a1ecfcea2..0f4921acf 100644
+--- a/applications/luci-app-https-dns-proxy/root/etc/uci-defaults/40_luci-https-dns-proxy
++++ b/applications/luci-app-https-dns-proxy/root/etc/uci-defaults/40_luci-https-dns-proxy
+@@ -1,3 +1,9 @@
+ #!/bin/sh
++uci -q batch <<-EOF >/dev/null
++	delete ucitrack.@https-dns-proxy[-1]
++	add ucitrack https-dns-proxy
++	set ucitrack.@https-dns-proxy[-1].init=https-dns-proxy
++	commit ucitrack
++EOF
+ rm -rf /var/luci-modulecache/; rm -f /var/luci-indexcache;
+ exit 0
+diff --git a/net/smartdns/Makefile b/net/smartdns/Makefile
+index 87de71826..1762c3258 100644
+--- a/net/smartdns/Makefile
++++ b/net/smartdns/Makefile
+@@ -1,18 +1,28 @@
+ #
+-# Copyright (c) 2018-2020 Nick Peng (pymumu@gmail.com)
+-# This is free software, licensed under the GNU General Public License v3.
++# Copyright (C) 2018-2020 Ruilin Peng (Nick) <pymumu@gmail.com>.
+ #
+-
++# smartdns is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# smartdns is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=smartdns
+-PKG_VERSION:=1.2020.30
++PKG_VERSION:=1.2021.24
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE_PROTO:=git
+-PKG_SOURCE_URL:=https://www.github.com/pymumu/smartdns.git
+-PKG_SOURCE_VERSION:=a6fe329105c7275d4683d17e95ab9d9f93a9c863
+-PKG_MIRROR_HASH:=d5affc45a533e38ee04f3ce47b441aecf316cb9cb68ff410eede67090ec0fcc7
++PKG_SOURCE_URL:=https://github.com/pymumu/smartdns.git
++PKG_MIRROR_HASH:=282bd4926fd33a949ba8a8a7f2a9eb83c09b540e88c782b2c739c6cb82b062a5
++PKG_SOURCE_VERSION:=11cf7b614c2ad42acf12cf4843daa1b67696763b
+ 
+ PKG_MAINTAINER:=Nick Peng <pymumu@gmail.com>
+ PKG_LICENSE:=GPL-3.0-or-later
+@@ -22,7 +32,7 @@ PKG_BUILD_PARALLEL:=1
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+-MAKE_VARS += VER=$(PKG_VERSION) 
++MAKE_VARS += VER=$(PKG_VERSION)
+ MAKE_PATH:=src
+ 
+ define Package/smartdns
+@@ -52,8 +62,8 @@ define Package/smartdns/install
+ 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/package/openwrt/files/etc/init.d/smartdns $(1)/etc/init.d/smartdns
+ 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/package/openwrt/address.conf $(1)/etc/smartdns/address.conf
+ 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/package/openwrt/blacklist-ip.conf $(1)/etc/smartdns/blacklist-ip.conf
+-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/package/openwrt/custom.conf $(1)/etc/smartdns/custom.conf
+-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/package/openwrt/files/etc/config/smartdns $(1)/etc/config/smartdns
++	$(INSTALL_CONF) $(CURDIR)/conf/custom.conf $(1)/etc/smartdns/custom.conf
++	$(INSTALL_CONF) $(CURDIR)/conf/smartdns.conf $(1)/etc/config/smartdns
+ endef
+ 
+-$(eval $(call BuildPackage,smartdns))
++$(eval $(call BuildPackage,smartdns))
+\ No newline at end of file
+diff --git a/net/smartdns/conf/custom.conf b/net/smartdns/conf/custom.conf
+new file mode 100644
+index 000000000..fde38d07f
+--- /dev/null
++++ b/net/smartdns/conf/custom.conf
+@@ -0,0 +1,50 @@
++# Add custom settings here.
++
++# set log level
++# log-level [level], level=fatal, error, warn, notice, info, debug
++# log-level error
++
++# log-size k,m,g
++# log-size 128k
++
++# log-file /var/log/smartdns.log
++# log-num 2
++
++# List of hosts that supply bogus NX domain results 
++# bogus-nxdomain [ip/subnet]
++
++speed-check-mode tcp:80,ping
++
++server 101.6.6.6:5353
++server 202.38.93.153:5353
++server 202.141.162.123:5353
++server 202.141.178.13:5353
++server 2001:da8::666
++server 208.67.222.222:5353 -group fq_dns -exclude-default-group
++server 208.67.220.220:5353 -group fq_dns -exclude-default-group
++
++server-tcp 1.0.0.1 -group fq_dns -exclude-default-group
++server-tcp 8.8.4.4 -group fq_dns -exclude-default-group
++server-tcp 149.112.112.112 -group fq_dns -exclude-default-group
++server-tcp 2606:4700:4700::1001 -group fq_dns -exclude-default-group
++
++server-tls 115.159.131.230 -host-name dns.rubyfish.cn
++server-tls dns.rubyfish.cn
++server-tls 1.1.1.1 -host-name 1dot1dot1dot1.cloudflare-dns.com -group fq_dns -exclude-default-group
++server-tls 2606:4700:4700::1111 -host-name 1dot1dot1dot1.cloudflare-dns.com -group fq_dns -exclude-default-group
++server-tls 1dot1dot1dot1.cloudflare-dns.com -group fq_dns -exclude-default-group
++server-tls 8.8.8.8 -host-name dns.google -group fq_dns -exclude-default-group
++server-tls dns.google -group fq_dns -exclude-default-group
++
++server-https https://45.77.180.10/resolve -host-name dns.containerpi.com -http-host dns.containerpi.com
++server-https https://dns.containerpi.com/dns-query
++server-https https://115.159.131.230/resolve -host-name dns.rubyfish.cn -http-host dns.rubyfish.cn
++server-https https://dns.rubyfish.cn/dns-query
++server-https https://202.38.93.153/resolve -host-name neatdns.ustclug.org -http-host neatdns.ustclug.org
++server-https https://202.141.178.13/resolve -host-name neatdns.ustclug.org -http-host neatdns.ustclug.org
++server-https https://neatdns.ustclug.org/resolve
++server-https https://i.233py.com/dns-query
++server-https https://9.9.9.9/dns-query -group fq_dns -exclude-default-group
++server-https https://dns9.quad9.net/dns-query -group fq_dns -exclude-default-group
++server-https https://146.112.41.2/dns-query -host-name doh.opendns.com -http-host doh.opendns.com -group fq_dns -exclude-default-group
++server-https https://doh.opendns.com/dns-query -group fq_dns -exclude-default-group
+\ No newline at end of file
+diff --git a/net/smartdns/conf/smartdns.conf b/net/smartdns/conf/smartdns.conf
+new file mode 100644
+index 000000000..e44dd1d26
+--- /dev/null
++++ b/net/smartdns/conf/smartdns.conf
+@@ -0,0 +1,29 @@
++config smartdns
++  option server_name 'smartdns'
++  option seconddns_no_speed_check '0'
++  option seconddns_no_rule_addr '0'
++  option seconddns_no_rule_nameserver '0'
++  option seconddns_no_rule_ipset '0'
++  option seconddns_no_rule_soa '0'
++  option seconddns_no_dualstack_selection '0'
++  option seconddns_no_cache '0'
++  option force_aaaa_soa '0'
++  option coredump '0'
++  option dualstack_ip_selection '1'
++  option prefetch_domain '1'
++  option serve_expired '1'
++  option cache_size '2000'
++  option rr_ttl '3600'
++  option rr_ttl_min '5'
++  option seconddns_enabled '1'
++  option seconddns_port '5335'
++  option seconddns_tcp_server '0'
++  option seconddns_server_group 'fq_dns'
++  option ipv6_server '0'
++  option redirect 'dnsmasq-upstream'
++  option enabled '0'
++  option tcp_server '0'
++  option port '6053'
++  list old_redirect 'dnsmasq-upstream'
++  list old_port '6053'
++  list old_enabled '0'
+\ No newline at end of file
