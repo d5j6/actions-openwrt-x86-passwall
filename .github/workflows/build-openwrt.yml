@@ -70,6 +70,7 @@ jobs:
         cp patches/main.patch openwrt
         cp patches/add-upx.patch openwrt
         cp patches/packages.patch openwrt
+        cp patches/luci.patch openwrt
 
         cd openwrt
         patch -p1 < main.patch
@@ -78,6 +79,8 @@ jobs:
         ./scripts/feeds update -a
         cd feeds/packages
         patch -p1 -i ../../packages.patch
+        cd ../luci
+        patch -p1 -i ../../luci.patch
 
     - name: Update feeds and Install feeds
       run:  |
@@ -128,7 +131,7 @@ jobs:
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd openwrt/bin/targets/*/*
-        #rm -rf packages
+        # rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
 
