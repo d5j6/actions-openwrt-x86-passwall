@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cp -R ../default-settings package/default-settings
+# cp -R ../default-settings package/default-settings
 
 git clone --depth 1 https://github.com/xiaorouji/openwrt-passwall.git package/openwrt-passwall
 git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
@@ -16,6 +16,6 @@ make && sudo make install
 echo '
 CONFIG_CRYPTO_CHACHA20_X86_64=y
 CONFIG_CRYPTO_POLY1305_X86_64=y
-' >> ./target/linux/x86/64/config-5.4
+' >> target/linux/x86/64/config-5.4
 
 sed -i "s/enabled '0'/enabled '1'/g" feeds/packages/utils/irqbalance/files/irqbalance.config

@@ -67,10 +67,10 @@ jobs:
 
     - name: Apply Patches
       run: |
-        cp patches/main.patch openwrt
-        cp patches/add-upx.patch openwrt
-        cp patches/packages.patch openwrt
-        cp patches/luci.patch openwrt
+        mv patches/main.patch openwrt
+        mv patches/add-upx.patch openwrt
+        mv patches/packages.patch openwrt
+        mv patches/luci.patch openwrt
 
         cd openwrt
         patch -p1 < main.patch
@@ -89,6 +89,7 @@ jobs:
 
     - name: Load custom configuration
       run: |
+        [ -e default-settings ] && mv default-settings openwrt/package
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_SH
