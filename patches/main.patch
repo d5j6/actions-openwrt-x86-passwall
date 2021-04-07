@@ -55,3 +55,14 @@ index 56394773c3..e4c6e691b9 100644
 +echo performance > /sys/devices/system/cpu/cpufreq/policy1/scaling_governor
 +
  exit 0
+diff --git a/target/linux/x86/64/config-5.4 b/target/linux/x86/64/config-5.4
+index f09deca5b0..cab7a593cd 100644
+--- a/target/linux/x86/64/config-5.4
++++ b/target/linux/x86/64/config-5.4
+@@ -502,3 +502,5 @@ CONFIG_XEN_XENBUS_FRONTEND=y
+ CONFIG_XPS=y
+ CONFIG_ZLIB_DEFLATE=y
+ CONFIG_ZONE_DMA32=y
++CONFIG_CRYPTO_CHACHA20_X86_64=y
++CONFIG_CRYPTO_POLY1305_X86_64=y
+\ No newline at end of file

@@ -219,3 +219,14 @@ index 000000000..e44dd1d26
 +  list old_port '6053'
 +  list old_enabled '0'
 \ No newline at end of file
+diff --git a/utils/irqbalance/files/irqbalance.config b/utils/irqbalance/files/irqbalance.config
+index cc9382d61..8b7be000f 100644
+--- a/utils/irqbalance/files/irqbalance.config
++++ b/utils/irqbalance/files/irqbalance.config
+@@ -1,5 +1,5 @@
+ config irqbalance 'irqbalance'
+-	option enabled '0'
++	option enabled '1'
+ 
+ 	# The default value is 10 seconds
+ 	#option interval '10'
